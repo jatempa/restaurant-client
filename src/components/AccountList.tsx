@@ -63,6 +63,7 @@ export function AccountList() {
             <span className='user-name accounts-greeting'>
               Hi, {auth.user.name}
             </span>
+
           )}
         </div>
         <div className='header-actions accounts-header-actions'>
