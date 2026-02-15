@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import './Login.css'
 
 export function Login() {
@@ -38,23 +40,23 @@ export function Login() {
     <div className="login-page">
       <h1>Login</h1>
       <form onSubmit={handleSubmit} className="login-form">
-        <input
+        <Input
           type="text"
           placeholder="Email or username"
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
           required
         />
-        <input
+        <Input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading}>
           {loading ? 'Signing in...' : 'Sign in'}
-        </button>
+        </Button>
       </form>
 
       {error && <p className="error">{error}</p>}

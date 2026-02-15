@@ -1,43 +1,54 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useAuth } from '../context/useAuth'
-import { ConfirmModal } from './ConfirmModal'
-import './NoteDetail.css'
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, CreditCard, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ConfirmModal } from './ConfirmModal';
+import './NoteDetail.css';
 
 interface Category {
-  id: number
-  name: string
+  id: number;
+  name: string;
 }
 
 interface Product {
-  id: number
-  name: string
-  price: number
-  categoryId: number
+  id: number;
+  name: string;
+  price: number;
+  categoryId: number;
 }
 
 interface NoteProduct {
-  id: number
-  productId: number
-  amount: number
-  total: number
-  product: Product
+  id: number;
+  productId: number;
+  amount: number;
+  total: number;
+  product: Product;
 }
 
 interface Note {
-  id: number
-  numberNote: number
-  status: string
-  accountId: number
-  checkout: string | null
-  account?: { checkout: string | null }
-  noteProducts: NoteProduct[]
+  id: number;
+  numberNote: number;
+  status: string;
+  accountId: number;
+  checkout: string | null;
+  account?: { checkout: string | null };
+  noteProducts: NoteProduct[];
 }
 
 interface GroupedProduct {
-  product: Product
-  amount: number
-  total: number
+  product: Product;
+  amount: number;
+  total: number;
 }
 
 function ProductRow({
@@ -46,214 +57,218 @@ function ProductRow({
   onUpdateAmount,
   onDelete,
 }: {
-  item: GroupedProduct
-  readOnly?: boolean
-  onUpdateAmount: (productId: number, amount: number) => void
-  onDelete: (productId: number) => void
+  item: GroupedProduct;
+  readOnly?: boolean;
+  onUpdateAmount: (productId: number, amount: number) => void;
+  onDelete: (productId: number) => void;
 }) {
-  const [amount, setAmount] = useState(String(item.amount))
-  const [isEditing, setIsEditing] = useState(false)
+  const [amount, setAmount] = useState(String(item.amount));
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = () => {
-    setAmount(String(item.amount))
-    setIsEditing(true)
-  }
+    setAmount(String(item.amount));
+    setIsEditing(true);
+  };
 
   const handleSave = () => {
-    const num = parseInt(amount, 10)
+    const num = parseInt(amount, 10);
     if (num >= 1 && num !== item.amount) {
-      onUpdateAmount(item.product.id, num)
+      onUpdateAmount(item.product.id, num);
     }
-    setIsEditing(false)
-  }
+    setIsEditing(false);
+  };
 
-  const displayTotal =
-    isEditing
-      ? (parseInt(amount, 10) || 0) * item.product.price
-      : item.total
+  const displayTotal = isEditing
+    ? (parseInt(amount, 10) || 0) * item.product.price
+    : item.total;
 
   if (readOnly) {
     return (
-      <li className="note-product-row">
-        <span className="note-product-name">{item.product.name}</span>
-        <span className="note-product-total">
+      <li className='note-product-row'>
+        <span className='note-product-name'>{item.product.name}</span>
+        <span className='note-product-total'>
           × {item.amount} = ${item.total.toFixed(2)}
         </span>
       </li>
-    )
+    );
   }
 
   return (
-    <li className="note-product-row">
-      <span className="note-product-name">{item.product.name}</span>
-      <div className="note-product-actions">
-        <span className="note-product-amount">
+    <li className='note-product-row'>
+      <span className='note-product-name'>{item.product.name}</span>
+      <div className='note-product-actions'>
+        <span className='note-product-amount'>
           ×{' '}
           {isEditing ? (
-            <input
-              type="number"
-              min="1"
+            <Input
+              type='number'
+              min={1}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               onBlur={handleSave}
               onKeyDown={(e) => e.key === 'Enter' && handleSave()}
               autoFocus
+              className='w-16 h-8 text-center '
             />
           ) : (
-            <button
-              type="button"
-              className="btn-amount"
+            <Button
+              variant='ghost'
+              size='sm'
               onClick={handleEdit}
+              className='text-white'
             >
               {item.amount}
-            </button>
+            </Button>
           )}
         </span>
-        <span className="note-product-total">
-          = ${displayTotal.toFixed(2)}
-        </span>
-        <button
-          type="button"
-          className="btn-delete"
+        <span className='note-product-total'>= ${displayTotal.toFixed(2)}</span>
+        <Button
+          variant='destructive'
+          size='icon-sm'
           onClick={() => onDelete(item.product.id)}
           aria-label={`Delete ${item.product.name}`}
         >
-          −
-        </button>
+          <Trash2 className='size-4' />
+        </Button>
       </div>
     </li>
-  )
+  );
 }
 
 export function NoteDetail() {
-  const { accountId, noteId } = useParams<{ accountId: string; noteId: string }>()
-  const [note, setNote] = useState<Note | null>(null)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [products, setProducts] = useState<Product[]>([])
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('')
-  const [selectedProductId, setSelectedProductId] = useState<string>('')
-  const [amount, setAmount] = useState<string>('1')
-  const [loading, setLoading] = useState(true)
-  const [confirmState, setConfirmState] = useState<'checkout-note' | 'delete-product' | null>(null)
-  const [pendingProductId, setPendingProductId] = useState<number | null>(null)
-  const { auth, fetchWithAuth } = useAuth()
-  const navigate = useNavigate()
+  const { accountId, noteId } = useParams<{
+    accountId: string;
+    noteId: string;
+  }>();
+  const [note, setNote] = useState<Note | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+  const [selectedProductId, setSelectedProductId] = useState<string>('');
+  const [amount, setAmount] = useState<string>('1');
+  const [loading, setLoading] = useState(true);
+  const [confirmState, setConfirmState] = useState<
+    'checkout-note' | 'delete-product' | null
+  >(null);
+  const [pendingProductId, setPendingProductId] = useState<number | null>(null);
+  const { auth, fetchWithAuth } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!auth || !noteId) {
-      if (!auth) navigate('/')
-      return
+      if (!auth) navigate('/');
+      return;
     }
     fetchWithAuth(`/notes/${noteId}`)
       .then((res) => {
-        if (!res.ok) throw new Error('Not found')
-        return res.json()
+        if (!res.ok) throw new Error('Not found');
+        return res.json();
       })
       .then(setNote)
       .catch(() => setNote(null))
-      .finally(() => setLoading(false))
-  }, [auth, noteId, fetchWithAuth, navigate])
+      .finally(() => setLoading(false));
+  }, [auth, noteId, fetchWithAuth, navigate]);
 
   useEffect(() => {
-    if (!auth) return
+    if (!auth) return;
     fetchWithAuth('/categories')
       .then((res) => res.json())
       .then(setCategories)
-      .catch(() => setCategories([]))
-  }, [auth, fetchWithAuth])
+      .catch(() => setCategories([]));
+  }, [auth, fetchWithAuth]);
 
   useEffect(() => {
-    if (!auth) return
+    if (!auth) return;
     const url = selectedCategoryId
       ? `/products?categoryId=${selectedCategoryId}`
-      : '/products'
+      : '/products';
     fetchWithAuth(url)
       .then((res) => res.json())
       .then(setProducts)
-      .catch(() => setProducts([]))
-  }, [auth, selectedCategoryId, fetchWithAuth])
+      .catch(() => setProducts([]));
+  }, [auth, selectedCategoryId, fetchWithAuth]);
 
   const handleAddProduct = async () => {
-    if (!noteId || !selectedProductId || !amount) return
-    const amountNum = parseInt(amount, 10)
-    if (amountNum < 1) return
+    if (!noteId || !selectedProductId || !amount) return;
+    const amountNum = parseInt(amount, 10);
+    if (amountNum < 1) return;
     const res = await fetchWithAuth(`/notes/${noteId}/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId: Number(selectedProductId), amount: amountNum }),
-    })
+      body: JSON.stringify({
+        productId: Number(selectedProductId),
+        amount: amountNum,
+      }),
+    });
     if (res.ok) {
-      const created = await res.json()
+      const created = await res.json();
       setNote((prev) =>
         prev
           ? {
               ...prev,
               noteProducts: [...prev.noteProducts, created],
             }
-          : null
-      )
-      setAmount('1')
+          : null,
+      );
+      setAmount('1');
     }
-  }
+  };
 
   const handleUpdateAmount = async (productId: number, newAmount: number) => {
-    if (!noteId || newAmount < 1) return
-    const res = await fetchWithAuth(
-      `/notes/${noteId}/products/${productId}`,
-      {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: newAmount }),
-      }
-    )
+    if (!noteId || newAmount < 1) return;
+    const res = await fetchWithAuth(`/notes/${noteId}/products/${productId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: newAmount }),
+    });
     if (res.ok) {
-      const updated = await res.json()
+      const updated = await res.json();
       setNote((prev) => {
-        if (!prev) return null
+        if (!prev) return null;
         const withoutProduct = prev.noteProducts.filter(
-          (np) => np.productId !== productId
-        )
+          (np) => np.productId !== productId,
+        );
         return {
           ...prev,
           noteProducts: [...withoutProduct, updated],
-        }
-      })
+        };
+      });
     }
-  }
+  };
 
   const handleDeleteProductClick = (productId: number) => {
-    setPendingProductId(productId)
-    setConfirmState('delete-product')
-  }
+    setPendingProductId(productId);
+    setConfirmState('delete-product');
+  };
 
   const handleDeleteProductConfirm = async () => {
-    if (!noteId || pendingProductId === null) return
+    if (!noteId || pendingProductId === null) return;
     const res = await fetchWithAuth(
       `/notes/${noteId}/products/${pendingProductId}`,
-      { method: 'DELETE' }
-    )
+      { method: 'DELETE' },
+    );
     if (res.ok) {
       setNote((prev) =>
         prev
           ? {
               ...prev,
               noteProducts: prev.noteProducts.filter(
-                (np) => np.productId !== pendingProductId
+                (np) => np.productId !== pendingProductId,
               ),
             }
-          : null
-      )
+          : null,
+      );
     }
-    setPendingProductId(null)
-    setConfirmState(null)
-  }
+    setPendingProductId(null);
+    setConfirmState(null);
+  };
 
   const handleCheckoutClick = () => {
-    setConfirmState('checkout-note')
-  }
+    setConfirmState('checkout-note');
+  };
 
   const handleCheckoutConfirm = async () => {
-    if (!noteId || !accountId) return
+    if (!noteId || !accountId) return;
     const res = await fetchWithAuth(`/notes/${noteId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -261,143 +276,147 @@ export function NoteDetail() {
         checkout: new Date().toISOString(),
         status: 'closed',
       }),
-    })
+    });
     if (res.ok) {
-      navigate(`/accounts/${accountId}`)
+      navigate(`/accounts/${accountId}`);
     }
-    setConfirmState(null)
-  }
+    setConfirmState(null);
+  };
 
   const groupedProducts = useMemo(() => {
     const byProduct: Record<
       number,
       { product: Product; amount: number; total: number }
-    > = {}
+    > = {};
     for (const np of note?.noteProducts ?? []) {
-      const key = np.productId
+      const key = np.productId;
       if (!byProduct[key]) {
-        byProduct[key] = { product: np.product, amount: 0, total: 0 }
+        byProduct[key] = { product: np.product, amount: 0, total: 0 };
       }
-      byProduct[key].amount += np.amount
-      byProduct[key].total += np.total ?? 0
+      byProduct[key].amount += np.amount;
+      byProduct[key].total += np.total ?? 0;
     }
-    return Object.values(byProduct)
-  }, [note?.noteProducts])
+    return Object.values(byProduct);
+  }, [note?.noteProducts]);
 
-  const isReadOnly = !!(note?.checkout || note?.account?.checkout)
+  const isReadOnly = !!(note?.checkout || note?.account?.checkout);
 
-  if (!auth) return null
-  if (loading) return <div className="page">Loading...</div>
-  if (!note) return <div className="page">Note not found</div>
+  if (!auth) return null;
+  if (loading) return <div className='page'>Loading...</div>;
+  if (!note) return <div className='page'>Note not found</div>;
 
-  const backPath = accountId ? `/accounts/${accountId}` : '/accounts'
+  const backPath = accountId ? `/accounts/${accountId}` : '/accounts';
 
   return (
-    <div className="page">
-      <header className="page-header">
-        <button
-          type="button"
-          className="btn-back"
+    <div className='page'>
+      <header className='page-header'>
+        <Button
+          variant='secondary'
           onClick={() => navigate(backPath)}
-          aria-label="Back"
+          aria-label='Back'
+          className='text-white'
         >
-          ← Back
-        </button>
+          <ArrowLeft className='size-4' />
+          Back
+        </Button>
       </header>
 
-      <div className="note-detail-header">
+      <div className='note-detail-header'>
         <h1>Note #{note.numberNote}</h1>
-        <span className={`status-badge ${!note.checkout ? 'status-open' : 'status-closed'}`}>
-          {!note.checkout ? 'Open' : 'Closed'}
-        </span>
-      </div>
-
-      {!isReadOnly && (
-      <div className="checkout-actions">
-        <button
-          type="button"
-          className="btn-checkout"
-          onClick={handleCheckoutClick}
-          aria-label="Checkout note"
+        <Badge
+          variant={!note.checkout ? 'secondary' : 'destructive'}
+          className='ml-2'
         >
-          Checkout note
-        </button>
+          {!note.checkout ? 'Open' : 'Closed'}
+        </Badge>
       </div>
+
+      {!isReadOnly && (
+        <div className='checkout-actions'>
+          <Button
+            onClick={handleCheckoutClick}
+            aria-label='Checkout note'
+            className='bg-green-600 hover:bg-green-700'
+          >
+            <CreditCard className='size-4' />
+            Checkout note
+          </Button>
+        </div>
       )}
 
       {!isReadOnly && (
-      <section className="add-product-section">
-        <h2>Add product</h2>
-        <div className="add-product-form">
-          <div className="form-group">
-            <label htmlFor="category">Category</label>
-            <select
-              id="category"
-              value={selectedCategoryId}
-              onChange={(e) => {
-                setSelectedCategoryId(e.target.value)
-                setSelectedProductId('')
-              }}
-            >
-              <option value="">Select category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          {selectedCategoryId && (
-            <>
-              <div className="form-group">
-                <label htmlFor="product">Product</label>
-                <select
-                  id="product"
-                  value={selectedProductId}
-                  onChange={(e) => setSelectedProductId(e.target.value)}
-                >
-                  <option value="">Select product</option>
-                  {products.map((prod) => (
-                    <option key={prod.id} value={prod.id}>
-                      {prod.name} — ${prod.price.toFixed(2)}
-                    </option>
+        <section className='add-product-section'>
+          <h2>Add product</h2>
+          <div className='add-product-form'>
+            <div className='form-group'>
+              <label htmlFor='category'>Category</label>
+              <Select
+                value={selectedCategoryId}
+                onValueChange={(v: string) => {
+                  setSelectedCategoryId(v);
+                  setSelectedProductId('');
+                }}
+              >
+                <SelectTrigger id='category' className='w-full text-white'>
+                  <SelectValue placeholder='Select category' />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={String(cat.id)}>
+                      {cat.name}
+                    </SelectItem>
                   ))}
-                </select>
-              </div>
-              {selectedProductId && (
-                <>
-                  <div className="form-group">
-                    <label htmlFor="amount">Amount</label>
-                    <input
-                      id="amount"
-                      type="number"
-                      min="1"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    className="btn-save"
-                    onClick={handleAddProduct}
+                </SelectContent>
+              </Select>
+            </div>
+            {selectedCategoryId && (
+              <>
+                <div className='form-group'>
+                  <label htmlFor='product'>Product</label>
+                  <Select
+                    value={selectedProductId}
+                    onValueChange={setSelectedProductId}
                   >
-                    Save product
-                  </button>
-                </>
-              )}
-            </>
-          )}
-        </div>
-      </section>
+                    <SelectTrigger id='product' className='w-full text-white'>
+                      <SelectValue placeholder='Select product' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.map((prod) => (
+                        <SelectItem key={prod.id} value={String(prod.id)}>
+                          {prod.name} — ${prod.price.toFixed(2)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {selectedProductId && (
+                  <>
+                    <div className='form-group'>
+                      <label htmlFor='amount'>Amount</label>
+                      <Input
+                        id='amount'
+                        type='number'
+                        min={1}
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                      />
+                    </div>
+                    <Button onClick={handleAddProduct}>Save product</Button>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </section>
       )}
 
-      <section className="note-products-section">
+      <section className='note-products-section'>
         <h2>Products in note</h2>
         {groupedProducts.length === 0 ? (
-          <p className="empty-message">No products added yet</p>
+          <p className='empty-message'>No products added yet</p>
         ) : (
           <>
-            <ul className="note-products-list">
+            <ul className='note-products-list'>
               {groupedProducts.map((item) => (
                 <ProductRow
                   key={item.product.id}
@@ -408,7 +427,7 @@ export function NoteDetail() {
                 />
               ))}
             </ul>
-            <div className="note-products-total">
+            <div className='note-products-total'>
               Total: $
               {groupedProducts
                 .reduce((sum, item) => sum + item.total, 0)
@@ -419,22 +438,22 @@ export function NoteDetail() {
       </section>
       {confirmState === 'checkout-note' && (
         <ConfirmModal
-          message="Are you sure you want to close the note?"
+          message='Are you sure you want to close the note?'
           onConfirm={handleCheckoutConfirm}
           onCancel={() => setConfirmState(null)}
-          confirmVariant="close"
+          confirmVariant='close'
         />
       )}
       {confirmState === 'delete-product' && (
         <ConfirmModal
-          message="Are you sure you want to delete this product from the note?"
+          message='Are you sure you want to delete this product from the note?'
           onConfirm={handleDeleteProductConfirm}
           onCancel={() => {
-            setConfirmState(null)
-            setPendingProductId(null)
+            setConfirmState(null);
+            setPendingProductId(null);
           }}
         />
       )}
     </div>
-  )
+  );
 }

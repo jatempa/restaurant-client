@@ -157,11 +157,3 @@
   font-size: 0.9rem;
   font-weight: 500;
 }
-
-.form-group select,
-.form-group input {
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}

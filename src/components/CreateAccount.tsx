@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import './CreateAccount.css'
 
 export function CreateAccount() {
@@ -45,27 +47,22 @@ export function CreateAccount() {
   return (
     <div className="page">
       <header className="page-header">
-        <button
-          type="button"
-          className="btn-back"
-          onClick={() => navigate('/accounts')}
-          aria-label="Back"
-        >
+        <Button variant="secondary" onClick={() => navigate('/accounts')} aria-label="Back">
           ← Back
-        </button>
+        </Button>
       </header>
 
       <form onSubmit={handleSubmit} className="create-account-form">
         <h1>Create account</h1>
-        <input
+        <Input
           type="text"
           placeholder="Account name (optional)"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <button type="submit" disabled={loading}>
+        <Button type="submit" disabled={loading}>
           {loading ? 'Creating...' : 'Create'}
-        </button>
+        </Button>
       </form>
 
       {error && <p className="error">{error}</p>}

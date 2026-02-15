@@ -1,76 +1,86 @@
-import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/useAuth'
-import { ConfirmModal } from './ConfirmModal'
-import './AccountList.css'
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, LogOut, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/useAuth';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ConfirmModal } from './ConfirmModal';
+import './AccountList.css';
 
 interface Account {
-  id: number
-  name: string | null
-  userId: number
-  checkout: string | null
+  id: number;
+  name: string | null;
+  userId: number;
+  checkout: string | null;
 }
 
 export function AccountList() {
-  const [accounts, setAccounts] = useState<Account[]>([])
-  const [loading, setLoading] = useState(true)
-  const [deleteAccountId, setDeleteAccountId] = useState<number | null>(null)
-  const { auth, fetchWithAuth, logout } = useAuth()
-  const navigate = useNavigate()
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deleteAccountId, setDeleteAccountId] = useState<number | null>(null);
+  const { auth, fetchWithAuth, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!auth) {
-      navigate('/')
-      return
+      navigate('/');
+      return;
     }
     fetchWithAuth('/accounts')
       .then((res) => res.json())
       .then((data) => setAccounts(data))
       .catch(() => setAccounts([]))
-      .finally(() => setLoading(false))
-  }, [auth, fetchWithAuth, navigate])
+      .finally(() => setLoading(false));
+  }, [auth, fetchWithAuth, navigate]);
 
   const handleDeleteClick = (e: React.MouseEvent, id: number) => {
-    e.stopPropagation()
-    setDeleteAccountId(id)
-  }
+    e.stopPropagation();
+    setDeleteAccountId(id);
+  };
 
   const handleDeleteConfirm = async () => {
-    if (deleteAccountId === null) return
-    const res = await fetchWithAuth(`/accounts/${deleteAccountId}`, { method: 'DELETE' })
+    if (deleteAccountId === null) return;
+    const res = await fetchWithAuth(`/accounts/${deleteAccountId}`, {
+      method: 'DELETE',
+    });
     if (res.ok) {
-      setAccounts((prev) => prev.filter((acc) => acc.id !== deleteAccountId))
+      setAccounts((prev) => prev.filter((acc) => acc.id !== deleteAccountId));
     }
-    setDeleteAccountId(null)
-  }
+    setDeleteAccountId(null);
+  };
 
-  const isOpen = (acc: Account) => !acc.checkout
+  const isOpen = (acc: Account) => !acc.checkout;
 
-  if (!auth) return null
-  if (loading) return <div className="page">Loading...</div>
+  if (!auth) return null;
+  if (loading) return <div className='page'>Loading...</div>;
 
   return (
-    <div className="page">
-      <header className="page-header">
+    <div className='page'>
+      <header className='page-header'>
         <h1>Accounts</h1>
-        <div className="header-actions">
-          <button
-            type="button"
-            className="btn-add"
+        <div className='header-actions'>
+          <Button
+            size='icon'
             onClick={() => navigate('/accounts/new')}
-            aria-label="Create account"
+            aria-label='Create account'
           >
-            +
-          </button>
-          <button type="button" className="btn-icon" onClick={() => logout()} aria-label="Logout">
+            <Plus className='size-4' />
+          </Button>
+          <Button
+            variant='secondary'
+            onClick={() => logout()}
+            aria-label='Logout'
+            className='text-white'
+          >
+            <LogOut className='size-4' />
             Logout
-          </button>
+          </Button>
         </div>
       </header>
 
-      <div className="account-list">
+      <div className='account-list'>
         {accounts.length === 0 ? (
-          <p className="empty-message">There are no accounts yet</p>
+          <p className='empty-message'>There are no accounts yet</p>
         ) : (
           <ul>
             {accounts.map((acc) => (
@@ -81,20 +91,25 @@ export function AccountList() {
               >
                 <span>
                   Account #{acc.id}
-                  {acc.name && <span className="account-name"> — {acc.name}</span>}
-                  <span className={`status-badge ${isOpen(acc) ? 'status-open' : 'status-closed'}`}>
+                  {acc.name && (
+                    <span className='account-name'> — {acc.name}</span>
+                  )}
+                  <Badge
+                    variant={isOpen(acc) ? 'secondary' : 'destructive'}
+                    className='ml-2'
+                  >
                     {isOpen(acc) ? 'Open' : 'Closed'}
-                  </span>
+                  </Badge>
                 </span>
                 {isOpen(acc) && (
-                  <button
-                    type="button"
-                    className="btn-delete"
+                  <Button
+                    variant='destructive'
+                    size='icon-sm'
                     onClick={(e) => handleDeleteClick(e, acc.id)}
                     aria-label={`Delete account ${acc.id}`}
                   >
-                    −
-                  </button>
+                    <Trash2 className='size-4' />
+                  </Button>
                 )}
               </li>
             ))}
@@ -103,11 +118,11 @@ export function AccountList() {
       </div>
       {deleteAccountId !== null && (
         <ConfirmModal
-          message="Are you sure you want to delete the account?"
+          message='Are you sure you want to delete the account?'
           onConfirm={handleDeleteConfirm}
           onCancel={() => setDeleteAccountId(null)}
         />
       )}
     </div>
-  )
+  );
 }
