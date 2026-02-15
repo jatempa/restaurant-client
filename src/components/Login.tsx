@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -82,6 +82,10 @@ export function Login() {
           {loading ? 'Signing in...' : 'Sign in'}
         </Button>
       </form>
+
+      <p className="auth-link-row">
+        Don&apos;t have an account? <Link to="/register">Create one</Link>
+      </p>
 
       {error && <p className="error">{error}</p>}
     </div>

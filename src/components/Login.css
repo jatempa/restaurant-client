@@ -46,6 +46,17 @@
   margin-top: 0.25rem;
 }
 
+.auth-role label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.auth-link-row {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
 .user-info {
   margin-top: 2rem;
   padding: 1.5rem;

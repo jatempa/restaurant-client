@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './context/useAuth'
 import { Login } from './components/Login'
+import { Register } from './components/Register'
 import { AccountList } from './components/AccountList'
 import { CreateAccount } from './components/CreateAccount'
 import { AccountDetail } from './components/AccountDetail'
@@ -17,6 +18,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route
         path="/accounts"
         element={

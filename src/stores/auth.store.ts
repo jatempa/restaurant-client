@@ -15,9 +15,21 @@ export interface AuthState {
   user: User
 }
 
+export interface RegisterPayload {
+  email: string
+  username: string
+  password: string
+  name: string
+  firstLastName: string
+  secondLastName?: string
+  cellphoneNumber: string
+  role: 'ROLE_USER' | 'ROLE_ADMIN'
+}
+
 interface AuthStore {
   auth: AuthState | null
   login: (identifier: string, password: string) => Promise<{ ok: boolean; error?: string }>
+  register: (payload: RegisterPayload) => Promise<{ ok: boolean; error?: string }>
   logout: () => void
   fetchWithAuth: (url: string, options?: RequestInit) => Promise<Response>
 }
@@ -36,6 +48,24 @@ export const useAuthStore = create<AuthStore>()(
         const data = await res.json()
         if (!res.ok) {
           return { ok: false, error: data.message || 'Login failed' }
+        }
+        const state: AuthState = {
+          token: data.token,
+          user: data.user,
+        }
+        set({ auth: state })
+        return { ok: true }
+      },
+
+      register: async (payload: RegisterPayload) => {
+        const res = await fetch(`${API_BASE}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          return { ok: false, error: data.message || 'Registration failed' }
         }
         const state: AuthState = {
           token: data.token,
