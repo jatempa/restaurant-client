@@ -330,6 +330,7 @@ export function NoteDetail() {
             variant='secondary'
             onClick={() => navigate(backPath)}
             aria-label='Back'
+            className='text-white hover:text-white'
           >
             <ArrowLeft className='size-4' />
             Back
@@ -376,7 +377,10 @@ export function NoteDetail() {
                   setSelectedProductId('');
                 }}
               >
-                <SelectTrigger id='category' className='w-full text-white'>
+                <SelectTrigger
+                  id='category'
+                  className='w-full text-white data-placeholder:text-white'
+                >
                   <SelectValue placeholder='Select category' />
                 </SelectTrigger>
                 <SelectContent>
@@ -396,7 +400,10 @@ export function NoteDetail() {
                     value={selectedProductId}
                     onValueChange={setSelectedProductId}
                   >
-                    <SelectTrigger id='product' className='w-full text-white'>
+                    <SelectTrigger
+                      id='product'
+                      className='w-full text-white data-placeholder:text-white'
+                    >
                       <SelectValue placeholder='Select product' />
                     </SelectTrigger>
                     <SelectContent>

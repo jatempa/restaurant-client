@@ -56,18 +56,22 @@ export function AccountList() {
 
   return (
     <div className='page'>
-      <header className='page-header'>
-        <div>
-          <h1>Accounts</h1>
+      <header className='page-header accounts-header'>
+        <div className='accounts-header-main'>
+          <h1 className='accounts-title'>Accounts</h1>
           {auth.user?.name && (
-            <span className='user-name'>Hi, {auth.user.name}</span>
+            <span className='user-name accounts-greeting'>
+              Hi, {auth.user.name}
+            </span>
           )}
         </div>
-        <div className='header-actions'>
+        <div className='header-actions accounts-header-actions'>
           <Button
             size='icon'
             onClick={() => navigate('/accounts/new')}
             aria-label='Create account'
+            title='Create a new account'
+            className='accounts-create-btn'
           >
             <Plus className='size-4' />
           </Button>
@@ -75,7 +79,7 @@ export function AccountList() {
             variant='secondary'
             onClick={() => logout()}
             aria-label='Logout'
-            className='text-white'
+            className='accounts-logout-btn text-white hover:text-white'
           >
             <LogOut className='size-4' />
             Logout
