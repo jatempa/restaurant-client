@@ -399,12 +399,19 @@ export function NoteDetail() {
                   <Select
                     value={selectedProductId}
                     onValueChange={setSelectedProductId}
+                    disabled={products.length === 0}
                   >
                     <SelectTrigger
                       id='product'
                       className='w-full text-white data-placeholder:text-white'
                     >
-                      <SelectValue placeholder='Select product' />
+                      <SelectValue
+                        placeholder={
+                          products.length === 0
+                            ? 'No products in this category'
+                            : 'Select product'
+                        }
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {products.map((prod) => (
