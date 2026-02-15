@@ -5,6 +5,7 @@ import { Login } from './components/Login'
 import { AccountList } from './components/AccountList'
 import { CreateAccount } from './components/CreateAccount'
 import { AccountDetail } from './components/AccountDetail'
+import { NoteDetail } from './components/NoteDetail'
 import './App.css'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <AccountDetail />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/accounts/:accountId/notes/:noteId"
+        element={
+          <ProtectedRoute>
+            <NoteDetail />
           </ProtectedRoute>
         }
       />

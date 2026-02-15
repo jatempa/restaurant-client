@@ -109,7 +109,10 @@ export function AccountDetail() {
           ) : (
             <ul>
               {notes.map((note) => (
-                <li key={note.id}>
+                <li
+                  key={note.id}
+                  onClick={() => navigate(`/accounts/${id}/notes/${note.id}`)}
+                >
                   <span>
                     Note #{note.numberNote}
                     <span className="note-status"> — {note.status}</span>
