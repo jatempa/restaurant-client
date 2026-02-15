@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { ConfirmModal } from './ConfirmModal'
 import './AccountList.css'
 
 interface Account {
@@ -13,6 +14,7 @@ interface Account {
 export function AccountList() {
   const [accounts, setAccounts] = useState<Account[]>([])
   const [loading, setLoading] = useState(true)
+  const [deleteAccountId, setDeleteAccountId] = useState<number | null>(null)
   const { auth, fetchWithAuth, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -28,12 +30,18 @@ export function AccountList() {
       .finally(() => setLoading(false))
   }, [auth, fetchWithAuth, navigate])
 
-  const handleDelete = async (e: React.MouseEvent, id: number) => {
+  const handleDeleteClick = (e: React.MouseEvent, id: number) => {
     e.stopPropagation()
-    const res = await fetchWithAuth(`/accounts/${id}`, { method: 'DELETE' })
+    setDeleteAccountId(id)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (deleteAccountId === null) return
+    const res = await fetchWithAuth(`/accounts/${deleteAccountId}`, { method: 'DELETE' })
     if (res.ok) {
-      setAccounts((prev) => prev.filter((acc) => acc.id !== id))
+      setAccounts((prev) => prev.filter((acc) => acc.id !== deleteAccountId))
     }
+    setDeleteAccountId(null)
   }
 
   const isOpen = (acc: Account) => !acc.checkout
@@ -82,7 +90,7 @@ export function AccountList() {
                   <button
                     type="button"
                     className="btn-delete"
-                    onClick={(e) => handleDelete(e, acc.id)}
+                    onClick={(e) => handleDeleteClick(e, acc.id)}
                     aria-label={`Delete account ${acc.id}`}
                   >
                     −
@@ -93,6 +101,13 @@ export function AccountList() {
           </ul>
         )}
       </div>
+      {deleteAccountId !== null && (
+        <ConfirmModal
+          message="Are you sure you want to delete the account?"
+          onConfirm={handleDeleteConfirm}
+          onCancel={() => setDeleteAccountId(null)}
+        />
+      )}
     </div>
   )
 }

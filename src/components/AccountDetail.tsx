@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { ConfirmModal } from './ConfirmModal'
 import './AccountDetail.css'
 
 interface Account {
@@ -23,6 +24,8 @@ export function AccountDetail() {
   const [notes, setNotes] = useState<Note[]>([])
   const [loading, setLoading] = useState(true)
   const [notesLoading, setNotesLoading] = useState(true)
+  const [confirmState, setConfirmState] = useState<'checkout-account' | 'delete-note' | null>(null)
+  const [pendingNoteId, setPendingNoteId] = useState<number | null>(null)
   const { auth, fetchWithAuth } = useAuth()
   const navigate = useNavigate()
 
@@ -63,15 +66,27 @@ export function AccountDetail() {
     }
   }
 
-  const handleDeleteNote = async (e: React.MouseEvent, noteId: number) => {
+  const handleDeleteNoteClick = (e: React.MouseEvent, noteId: number) => {
     e.stopPropagation()
-    const res = await fetchWithAuth(`/notes/${noteId}`, { method: 'DELETE' })
-    if (res.ok) {
-      setNotes((prev) => prev.filter((n) => n.id !== noteId))
-    }
+    setPendingNoteId(noteId)
+    setConfirmState('delete-note')
   }
 
-  const handleCheckout = async () => {
+  const handleDeleteNoteConfirm = async () => {
+    if (pendingNoteId === null) return
+    const res = await fetchWithAuth(`/notes/${pendingNoteId}`, { method: 'DELETE' })
+    if (res.ok) {
+      setNotes((prev) => prev.filter((n) => n.id !== pendingNoteId))
+    }
+    setPendingNoteId(null)
+    setConfirmState(null)
+  }
+
+  const handleCheckoutClick = () => {
+    setConfirmState('checkout-account')
+  }
+
+  const handleCheckoutConfirm = async () => {
     if (!id) return
     const res = await fetchWithAuth(`/accounts/${id}`, {
       method: 'PUT',
@@ -81,6 +96,7 @@ export function AccountDetail() {
     if (res.ok) {
       navigate('/accounts')
     }
+    setConfirmState(null)
   }
 
   const accountOpen = !account?.checkout
@@ -114,7 +130,7 @@ export function AccountDetail() {
         <button
           type="button"
           className="btn-checkout"
-          onClick={handleCheckout}
+          onClick={handleCheckoutClick}
           aria-label="Checkout account"
         >
           Checkout account
@@ -162,7 +178,7 @@ export function AccountDetail() {
                       <button
                         type="button"
                         className="btn-delete"
-                        onClick={(e) => handleDeleteNote(e, note.id)}
+                        onClick={(e) => handleDeleteNoteClick(e, note.id)}
                         aria-label={`Delete note ${note.id}`}
                       >
                         −
@@ -175,6 +191,24 @@ export function AccountDetail() {
           )}
         </div>
       </section>
+      {confirmState === 'checkout-account' && (
+        <ConfirmModal
+          message="Are you sure you want to close the account? All notes will be closed too."
+          onConfirm={handleCheckoutConfirm}
+          onCancel={() => setConfirmState(null)}
+          confirmVariant="close"
+        />
+      )}
+      {confirmState === 'delete-note' && (
+        <ConfirmModal
+          message="Are you sure you want to delete the note?"
+          onConfirm={handleDeleteNoteConfirm}
+          onCancel={() => {
+            setConfirmState(null)
+            setPendingNoteId(null)
+          }}
+        />
+      )}
     </div>
   )
 }

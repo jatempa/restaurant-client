@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { ConfirmModal } from './ConfirmModal'
 import './NoteDetail.css'
 
 interface Category {
@@ -133,6 +134,8 @@ export function NoteDetail() {
   const [selectedProductId, setSelectedProductId] = useState<string>('')
   const [amount, setAmount] = useState<string>('1')
   const [loading, setLoading] = useState(true)
+  const [confirmState, setConfirmState] = useState<'checkout-note' | 'delete-product' | null>(null)
+  const [pendingProductId, setPendingProductId] = useState<number | null>(null)
   const { auth, fetchWithAuth } = useAuth()
   const navigate = useNavigate()
 
@@ -218,10 +221,15 @@ export function NoteDetail() {
     }
   }
 
-  const handleDeleteProduct = async (productId: number) => {
-    if (!noteId) return
+  const handleDeleteProductClick = (productId: number) => {
+    setPendingProductId(productId)
+    setConfirmState('delete-product')
+  }
+
+  const handleDeleteProductConfirm = async () => {
+    if (!noteId || pendingProductId === null) return
     const res = await fetchWithAuth(
-      `/notes/${noteId}/products/${productId}`,
+      `/notes/${noteId}/products/${pendingProductId}`,
       { method: 'DELETE' }
     )
     if (res.ok) {
@@ -230,15 +238,21 @@ export function NoteDetail() {
           ? {
               ...prev,
               noteProducts: prev.noteProducts.filter(
-                (np) => np.productId !== productId
+                (np) => np.productId !== pendingProductId
               ),
             }
           : null
       )
     }
+    setPendingProductId(null)
+    setConfirmState(null)
   }
 
-  const handleCheckout = async () => {
+  const handleCheckoutClick = () => {
+    setConfirmState('checkout-note')
+  }
+
+  const handleCheckoutConfirm = async () => {
     if (!noteId || !accountId) return
     const res = await fetchWithAuth(`/notes/${noteId}`, {
       method: 'PUT',
@@ -251,6 +265,7 @@ export function NoteDetail() {
     if (res.ok) {
       navigate(`/accounts/${accountId}`)
     }
+    setConfirmState(null)
   }
 
   const groupedProducts = useMemo(() => {
@@ -302,7 +317,7 @@ export function NoteDetail() {
         <button
           type="button"
           className="btn-checkout"
-          onClick={handleCheckout}
+          onClick={handleCheckoutClick}
           aria-label="Checkout note"
         >
           Checkout note
@@ -389,7 +404,7 @@ export function NoteDetail() {
                   item={item}
                   readOnly={isReadOnly}
                   onUpdateAmount={handleUpdateAmount}
-                  onDelete={handleDeleteProduct}
+                  onDelete={handleDeleteProductClick}
                 />
               ))}
             </ul>
@@ -402,6 +417,24 @@ export function NoteDetail() {
           </>
         )}
       </section>
+      {confirmState === 'checkout-note' && (
+        <ConfirmModal
+          message="Are you sure you want to close the note?"
+          onConfirm={handleCheckoutConfirm}
+          onCancel={() => setConfirmState(null)}
+          confirmVariant="close"
+        />
+      )}
+      {confirmState === 'delete-product' && (
+        <ConfirmModal
+          message="Are you sure you want to delete this product from the note?"
+          onConfirm={handleDeleteProductConfirm}
+          onCancel={() => {
+            setConfirmState(null)
+            setPendingProductId(null)
+          }}
+        />
+      )}
     </div>
   )
 }
