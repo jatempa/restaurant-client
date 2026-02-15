@@ -95,3 +95,150 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Page layout */
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: left;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-back,
+.btn-icon {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-back:hover,
+.btn-icon:hover {
+  background: #f0f0f0;
+}
+
+.btn-add {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: #646cff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.btn-add:hover {
+  background: #535bf2;
+}
+
+.account-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.account-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  background: #f8f8f8;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.account-list li:hover {
+  background: #eee;
+}
+
+.btn-delete {
+  width: 2rem;
+  height: 2rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+}
+
+.empty-message {
+  color: #888;
+  text-align: center;
+  padding: 2rem;
+}
+
+.account-number-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.account-number {
+  font-size: 4rem;
+  font-weight: 700;
+  color: #646cff;
+}
+
+.create-account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 320px;
+}
+
+.create-account-form input {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.create-account-form button {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  background: #646cff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.create-account-form button:hover:not(:disabled) {
+  background: #535bf2;
+}
+
+.create-account-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
