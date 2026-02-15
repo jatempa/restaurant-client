@@ -30,7 +30,7 @@ export function ConfirmModal({
           <AlertDialogDescription>{message}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel className='text-white' onClick={onCancel}>
+          <AlertDialogCancel variant='default' onClick={onCancel}>
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction

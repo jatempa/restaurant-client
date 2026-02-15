@@ -120,6 +120,7 @@ export function AccountDetail() {
             variant='secondary'
             onClick={() => navigate('/accounts')}
             aria-label='Back'
+            className='text-white hover:text-white'
           >
             <ArrowLeft className='size-4' />
             Back
@@ -163,6 +164,7 @@ export function AccountDetail() {
               size='icon'
               onClick={handleCreateNote}
               aria-label='Create note'
+              title='Create a new note'
             >
               <Plus className='size-4' />
             </Button>
@@ -187,7 +189,6 @@ export function AccountDetail() {
                   >
                     <span>
                       Note #{note.numberNote}
-                      <span className='note-status'> — {note.status}</span>
                       <Badge
                         variant={noteOpen ? 'secondary' : 'destructive'}
                         className='ml-2'
