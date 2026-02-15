@@ -7,6 +7,7 @@ interface Account {
   id: number
   name: string | null
   userId: number
+  checkout: string | null
 }
 
 export function AccountList() {
@@ -34,6 +35,8 @@ export function AccountList() {
       setAccounts((prev) => prev.filter((acc) => acc.id !== id))
     }
   }
+
+  const isOpen = (acc: Account) => !acc.checkout
 
   if (!auth) return null
   if (loading) return <div className="page">Loading...</div>
@@ -63,19 +66,28 @@ export function AccountList() {
         ) : (
           <ul>
             {accounts.map((acc) => (
-              <li key={acc.id} onClick={() => navigate(`/accounts/${acc.id}`)}>
+              <li
+                key={acc.id}
+                onClick={() => isOpen(acc) && navigate(`/accounts/${acc.id}`)}
+                className={isOpen(acc) ? '' : 'item-closed'}
+              >
                 <span>
                   Account #{acc.id}
                   {acc.name && <span className="account-name"> — {acc.name}</span>}
+                  <span className={`status-badge ${isOpen(acc) ? 'status-open' : 'status-closed'}`}>
+                    {isOpen(acc) ? 'Open' : 'Closed'}
+                  </span>
                 </span>
-                <button
-                  type="button"
-                  className="btn-delete"
-                  onClick={(e) => handleDelete(e, acc.id)}
-                  aria-label={`Delete account ${acc.id}`}
-                >
-                  −
-                </button>
+                {isOpen(acc) && (
+                  <button
+                    type="button"
+                    className="btn-delete"
+                    onClick={(e) => handleDelete(e, acc.id)}
+                    aria-label={`Delete account ${acc.id}`}
+                  >
+                    −
+                  </button>
+                )}
               </li>
             ))}
           </ul>

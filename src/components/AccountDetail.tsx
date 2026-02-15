@@ -6,6 +6,7 @@ import './AccountDetail.css'
 interface Account {
   id: number
   name: string | null
+  checkout: string | null
 }
 
 interface Note {
@@ -13,6 +14,7 @@ interface Note {
   numberNote: number
   status: string
   accountId: number
+  checkout: string | null
 }
 
 export function AccountDetail() {
@@ -69,6 +71,20 @@ export function AccountDetail() {
     }
   }
 
+  const handleCheckout = async () => {
+    if (!id) return
+    const res = await fetchWithAuth(`/accounts/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ checkout: new Date().toISOString() }),
+    })
+    if (res.ok) {
+      navigate('/accounts')
+    }
+  }
+
+  const accountOpen = !account?.checkout
+
   if (!auth) return null
   if (loading) return <div className="page">Loading...</div>
   if (!account) return <div className="page">Account not found</div>
@@ -88,19 +104,37 @@ export function AccountDetail() {
 
       <div className="account-number-display">
         <span className="account-number">{account.name || `Account #${account.id}`}</span>
+        <span className={`status-badge ${accountOpen ? 'status-open' : 'status-closed'}`}>
+          {accountOpen ? 'Open' : 'Closed'}
+        </span>
       </div>
+
+      {accountOpen && (
+      <div className="checkout-actions">
+        <button
+          type="button"
+          className="btn-checkout"
+          onClick={handleCheckout}
+          aria-label="Checkout account"
+        >
+          Checkout account
+        </button>
+      </div>
+      )}
 
       <section className="notes-section">
         <div className="notes-header">
           <h2>Notes</h2>
-          <button
-            type="button"
-            className="btn-add"
-            onClick={handleCreateNote}
-            aria-label="Create note"
-          >
-            +
-          </button>
+          {accountOpen && (
+            <button
+              type="button"
+              className="btn-add"
+              onClick={handleCreateNote}
+              aria-label="Create note"
+            >
+              +
+            </button>
+          )}
         </div>
         <div className="note-list">
           {notesLoading ? (
@@ -109,25 +143,34 @@ export function AccountDetail() {
             <p className="empty-message">There are no notes yet</p>
           ) : (
             <ul>
-              {notes.map((note) => (
-                <li
-                  key={note.id}
-                  onClick={() => navigate(`/accounts/${id}/notes/${note.id}`)}
-                >
-                  <span>
-                    Note #{note.numberNote}
-                    <span className="note-status"> — {note.status}</span>
-                  </span>
-                  <button
-                    type="button"
-                    className="btn-delete"
-                    onClick={(e) => handleDeleteNote(e, note.id)}
-                    aria-label={`Delete note ${note.id}`}
+              {notes.map((note) => {
+                const noteOpen = !note.checkout
+                return (
+                  <li
+                    key={note.id}
+                    onClick={() => noteOpen && id && navigate(`/accounts/${id}/notes/${note.id}`)}
+                    className={noteOpen ? '' : 'item-closed'}
                   >
-                    −
-                  </button>
-                </li>
-              ))}
+                    <span>
+                      Note #{note.numberNote}
+                      <span className="note-status"> — {note.status}</span>
+                      <span className={`status-badge ${noteOpen ? 'status-open' : 'status-closed'}`}>
+                        {noteOpen ? 'Open' : 'Closed'}
+                      </span>
+                    </span>
+                    {noteOpen && (
+                      <button
+                        type="button"
+                        className="btn-delete"
+                        onClick={(e) => handleDeleteNote(e, note.id)}
+                        aria-label={`Delete note ${note.id}`}
+                      >
+                        −
+                      </button>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
           )}
         </div>

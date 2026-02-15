@@ -28,6 +28,7 @@ interface Note {
   numberNote: number
   status: string
   accountId: number
+  checkout: string | null
   noteProducts: NoteProduct[]
 }
 
@@ -223,6 +224,21 @@ export function NoteDetail() {
     }
   }
 
+  const handleCheckout = async () => {
+    if (!noteId || !accountId) return
+    const res = await fetchWithAuth(`/notes/${noteId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        checkout: new Date().toISOString(),
+        status: 'closed',
+      }),
+    })
+    if (res.ok) {
+      navigate(`/accounts/${accountId}`)
+    }
+  }
+
   const groupedProducts = useMemo(() => {
     const byProduct: Record<
       number,
@@ -260,7 +276,23 @@ export function NoteDetail() {
 
       <div className="note-detail-header">
         <h1>Note #{note.numberNote}</h1>
+        <span className={`status-badge ${!note.checkout ? 'status-open' : 'status-closed'}`}>
+          {!note.checkout ? 'Open' : 'Closed'}
+        </span>
       </div>
+
+      {!note.checkout && (
+      <div className="checkout-actions">
+        <button
+          type="button"
+          className="btn-checkout"
+          onClick={handleCheckout}
+          aria-label="Checkout note"
+        >
+          Checkout note
+        </button>
+      </div>
+      )}
 
       <section className="add-product-section">
         <h2>Add product</h2>

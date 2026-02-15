@@ -1,8 +1,10 @@
 .account-number-display {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   min-height: 200px;
+  gap: 0.5rem;
 }
 
 .account-number {
