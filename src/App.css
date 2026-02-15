@@ -210,6 +210,44 @@
   color: #646cff;
 }
 
+.notes-section {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.notes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.notes-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.note-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.note-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  background: #f8f8f8;
+  border-radius: 8px;
+}
+
+.note-status {
+  color: #666;
+  font-size: 0.9rem;
+}
+
 .create-account-form {
   display: flex;
   flex-direction: column;
