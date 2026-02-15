@@ -29,6 +29,7 @@ interface Note {
   status: string
   accountId: number
   checkout: string | null
+  account?: { checkout: string | null }
   noteProducts: NoteProduct[]
 }
 
@@ -40,10 +41,12 @@ interface GroupedProduct {
 
 function ProductRow({
   item,
+  readOnly,
   onUpdateAmount,
   onDelete,
 }: {
   item: GroupedProduct
+  readOnly?: boolean
   onUpdateAmount: (productId: number, amount: number) => void
   onDelete: (productId: number) => void
 }) {
@@ -67,6 +70,17 @@ function ProductRow({
     isEditing
       ? (parseInt(amount, 10) || 0) * item.product.price
       : item.total
+
+  if (readOnly) {
+    return (
+      <li className="note-product-row">
+        <span className="note-product-name">{item.product.name}</span>
+        <span className="note-product-total">
+          × {item.amount} = ${item.total.toFixed(2)}
+        </span>
+      </li>
+    )
+  }
 
   return (
     <li className="note-product-row">
@@ -255,6 +269,8 @@ export function NoteDetail() {
     return Object.values(byProduct)
   }, [note?.noteProducts])
 
+  const isReadOnly = !!(note?.checkout || note?.account?.checkout)
+
   if (!auth) return null
   if (loading) return <div className="page">Loading...</div>
   if (!note) return <div className="page">Note not found</div>
@@ -281,7 +297,7 @@ export function NoteDetail() {
         </span>
       </div>
 
-      {!note.checkout && (
+      {!isReadOnly && (
       <div className="checkout-actions">
         <button
           type="button"
@@ -294,6 +310,7 @@ export function NoteDetail() {
       </div>
       )}
 
+      {!isReadOnly && (
       <section className="add-product-section">
         <h2>Add product</h2>
         <div className="add-product-form">
@@ -357,6 +374,7 @@ export function NoteDetail() {
           )}
         </div>
       </section>
+      )}
 
       <section className="note-products-section">
         <h2>Products in note</h2>
@@ -369,6 +387,7 @@ export function NoteDetail() {
                 <ProductRow
                   key={item.product.id}
                   item={item}
+                  readOnly={isReadOnly}
                   onUpdateAmount={handleUpdateAmount}
                   onDelete={handleDeleteProduct}
                 />

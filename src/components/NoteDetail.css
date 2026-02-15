@@ -47,6 +47,10 @@
   gap: 0.5rem;
 }
 
+.note-product-row .note-product-total {
+  flex-shrink: 0;
+}
+
 .note-product-name {
   font-weight: 500;
 }

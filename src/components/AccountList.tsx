@@ -68,7 +68,7 @@ export function AccountList() {
             {accounts.map((acc) => (
               <li
                 key={acc.id}
-                onClick={() => isOpen(acc) && navigate(`/accounts/${acc.id}`)}
+                onClick={() => navigate(`/accounts/${acc.id}`)}
                 className={isOpen(acc) ? '' : 'item-closed'}
               >
                 <span>

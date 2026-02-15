@@ -134,12 +134,11 @@
 }
 
 .item-closed {
-  opacity: 0.7;
-  cursor: default;
+  opacity: 0.85;
 }
 
 .item-closed:hover {
-  background: #f8f8f8;
+  background: #eee;
 }
 
 .empty-message {

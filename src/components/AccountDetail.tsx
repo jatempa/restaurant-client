@@ -148,7 +148,7 @@ export function AccountDetail() {
                 return (
                   <li
                     key={note.id}
-                    onClick={() => noteOpen && id && navigate(`/accounts/${id}/notes/${note.id}`)}
+                    onClick={() => id && navigate(`/accounts/${id}/notes/${note.id}`)}
                     className={noteOpen ? '' : 'item-closed'}
                   >
                     <span>
