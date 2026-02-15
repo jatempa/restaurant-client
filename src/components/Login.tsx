@@ -20,7 +20,7 @@ export function Login() {
     if (auth) navigate('/accounts')
   }, [auth, navigate])
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault()
     setError('')
     setFieldErrors({})

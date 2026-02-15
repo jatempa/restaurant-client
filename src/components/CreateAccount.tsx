@@ -15,7 +15,7 @@ export function CreateAccount() {
   const { auth, fetchWithAuth } = useAuth()
   const navigate = useNavigate()
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault()
     setError('')
     setFieldErrors({})
