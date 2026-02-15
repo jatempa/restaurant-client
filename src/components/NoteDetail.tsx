@@ -310,15 +310,19 @@ export function NoteDetail() {
   return (
     <div className='page'>
       <header className='page-header'>
-        <Button
-          variant='secondary'
-          onClick={() => navigate(backPath)}
-          aria-label='Back'
-          className='text-white'
-        >
-          <ArrowLeft className='size-4' />
-          Back
-        </Button>
+        <div>
+          <Button
+            variant='secondary'
+            onClick={() => navigate(backPath)}
+            aria-label='Back'
+          >
+            <ArrowLeft className='size-4' />
+            Back
+          </Button>
+          {auth.user?.name && (
+            <span className='user-name'>Hi, {auth.user.name}</span>
+          )}
+        </div>
       </header>
 
       <div className='note-detail-header'>

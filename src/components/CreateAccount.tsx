@@ -47,9 +47,14 @@ export function CreateAccount() {
   return (
     <div className="page">
       <header className="page-header">
-        <Button variant="secondary" onClick={() => navigate('/accounts')} aria-label="Back">
-          ← Back
-        </Button>
+        <div>
+          <Button variant="secondary" onClick={() => navigate('/accounts')} aria-label="Back">
+            ← Back
+          </Button>
+          {auth.user?.name && (
+            <span className="user-name">Hi, {auth.user.name}</span>
+          )}
+        </div>
       </header>
 
       <form onSubmit={handleSubmit} className="create-account-form">

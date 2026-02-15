@@ -57,7 +57,12 @@ export function AccountList() {
   return (
     <div className='page'>
       <header className='page-header'>
-        <h1>Accounts</h1>
+        <div>
+          <h1>Accounts</h1>
+          {auth.user?.name && (
+            <span className='user-name'>Hi, {auth.user.name}</span>
+          )}
+        </div>
         <div className='header-actions'>
           <Button
             size='icon'

@@ -26,6 +26,19 @@
   font-size: 1.5rem;
 }
 
+.page-header .user-name {
+  font-size: 0.875rem;
+  color: hsl(215.4 16.3% 46.9%);
+  margin-left: 0.75rem;
+}
+
+.page-header > div:first-child {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .header-actions {
   display: flex;
   align-items: center;
