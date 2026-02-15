@@ -40,6 +40,12 @@
   margin-top: 1rem;
 }
 
+.field-error {
+  color: #c00;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
 .user-info {
   margin-top: 2rem;
   padding: 1.5rem;

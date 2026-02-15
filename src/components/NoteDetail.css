@@ -90,3 +90,9 @@
   font-weight: 600;
   font-size: 1.1rem;
 }
+
+.field-error {
+  color: #c00;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}

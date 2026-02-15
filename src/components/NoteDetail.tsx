@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ConfirmModal } from './ConfirmModal';
+import { addProductSchema, productAmountSchema } from '@/lib/validations';
 import './NoteDetail.css';
 
 interface Category {
@@ -72,8 +73,11 @@ function ProductRow({
 
   const handleSave = () => {
     const num = parseInt(amount, 10);
-    if (num >= 1 && num !== item.amount) {
-      onUpdateAmount(item.product.id, num);
+    const parsed = productAmountSchema.safeParse({
+      amount: Number.isNaN(num) ? 0 : num,
+    });
+    if (parsed.success && parsed.data.amount !== item.amount) {
+      onUpdateAmount(item.product.id, parsed.data.amount);
     }
     setIsEditing(false);
   };
@@ -146,6 +150,7 @@ export function NoteDetail() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [amount, setAmount] = useState<string>('1');
+  const [addProductError, setAddProductError] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [confirmState, setConfirmState] = useState<
     'checkout-note' | 'delete-product' | null
@@ -189,15 +194,25 @@ export function NoteDetail() {
   }, [auth, selectedCategoryId, fetchWithAuth]);
 
   const handleAddProduct = async () => {
-    if (!noteId || !selectedProductId || !amount) return;
+    if (!noteId) return;
+    setAddProductError('');
+
     const amountNum = parseInt(amount, 10);
-    if (amountNum < 1) return;
+    const parsed = addProductSchema.safeParse({
+      productId: selectedProductId ? Number(selectedProductId) : 0,
+      amount: Number.isNaN(amountNum) ? 0 : amountNum,
+    });
+    if (!parsed.success) {
+      setAddProductError(parsed.error.issues[0]?.message ?? 'Invalid input');
+      return;
+    }
+
     const res = await fetchWithAuth(`/notes/${noteId}/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        productId: Number(selectedProductId),
-        amount: amountNum,
+        productId: parsed.data.productId,
+        amount: parsed.data.amount,
       }),
     });
     if (res.ok) {
@@ -411,6 +426,9 @@ export function NoteDetail() {
               </>
             )}
           </div>
+          {addProductError && (
+            <p className="field-error">{addProductError}</p>
+          )}
         </section>
       )}
 

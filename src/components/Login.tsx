@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { z } from 'zod'
+import { loginSchema } from '@/lib/validations'
 import './Login.css'
 
 export function Login() {
@@ -10,6 +12,7 @@ export function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{ identifier?: string; password?: string }>({})
   const { auth, login } = useAuth()
   const navigate = useNavigate()
 
@@ -20,10 +23,21 @@ export function Login() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    setLoading(true)
+    setFieldErrors({})
 
+    const parsed = loginSchema.safeParse({ identifier, password })
+    if (!parsed.success) {
+      const { fieldErrors: issues } = z.flattenError(parsed.error)
+      setFieldErrors({
+        identifier: issues.identifier?.[0],
+        password: issues.password?.[0],
+      })
+      return
+    }
+
+    setLoading(true)
     try {
-      const result = await login(identifier, password)
+      const result = await login(parsed.data.identifier, parsed.data.password)
       if (result.ok) {
         navigate('/accounts')
       } else {
@@ -40,20 +54,30 @@ export function Login() {
     <div className="login-page">
       <h1>Login</h1>
       <form onSubmit={handleSubmit} className="login-form">
-        <Input
-          type="text"
-          placeholder="Email or username"
-          value={identifier}
-          onChange={(e) => setIdentifier(e.target.value)}
-          required
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+        <div>
+          <Input
+            type="text"
+            placeholder="Email or username"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            aria-invalid={!!fieldErrors.identifier}
+          />
+          {fieldErrors.identifier && (
+            <p className="field-error">{fieldErrors.identifier}</p>
+          )}
+        </div>
+        <div>
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            aria-invalid={!!fieldErrors.password}
+          />
+          {fieldErrors.password && (
+            <p className="field-error">{fieldErrors.password}</p>
+          )}
+        </div>
         <Button type="submit" disabled={loading}>
           {loading ? 'Signing in...' : 'Sign in'}
         </Button>
