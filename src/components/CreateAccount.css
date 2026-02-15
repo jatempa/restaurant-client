@@ -1,0 +1,32 @@
+.create-account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 320px;
+}
+
+.create-account-form input {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.create-account-form button {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  background: #646cff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.create-account-form button:hover:not(:disabled) {
+  background: #535bf2;
+}
+
+.create-account-form button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
