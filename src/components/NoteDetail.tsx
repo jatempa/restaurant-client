@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { ConfirmModal } from './ConfirmModal';
+import { InfoModal } from './InfoModal.tsx';
 import { addProductSchema, productAmountSchema } from '@/lib/validations';
 import './NoteDetail.css';
 
@@ -151,6 +152,7 @@ export function NoteDetail() {
   const [selectedProductId, setSelectedProductId] = useState<string>('');
   const [amount, setAmount] = useState<string>('1');
   const [addProductError, setAddProductError] = useState<string>('');
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [confirmState, setConfirmState] = useState<
     'checkout-note' | 'delete-product' | null
@@ -158,6 +160,15 @@ export function NoteDetail() {
   const [pendingProductId, setPendingProductId] = useState<number | null>(null);
   const { auth, fetchWithAuth } = useAuth();
   const navigate = useNavigate();
+
+  const readErrorMessage = async (res: Response) => {
+    try {
+      const data = (await res.json()) as { message?: string };
+      return data?.message;
+    } catch {
+      return undefined;
+    }
+  };
 
   useEffect(() => {
     if (!auth || !noteId) {
@@ -226,7 +237,14 @@ export function NoteDetail() {
           : null,
       );
       setAmount('1');
+      return;
     }
+    const message = await readErrorMessage(res);
+    if (message === 'Insufficient stock') {
+      setInfoMessage('There is not enough stock for this product.');
+      return;
+    }
+    setAddProductError(message ?? 'Could not add product to note');
   };
 
   const handleUpdateAmount = async (productId: number, newAmount: number) => {
@@ -248,6 +266,11 @@ export function NoteDetail() {
           noteProducts: [...withoutProduct, updated],
         };
       });
+      return;
+    }
+    const message = await readErrorMessage(res);
+    if (message === 'Insufficient stock') {
+      setInfoMessage('There is not enough stock for this product.');
     }
   };
 
@@ -488,6 +511,13 @@ export function NoteDetail() {
             setConfirmState(null);
             setPendingProductId(null);
           }}
+        />
+      )}
+      {infoMessage && (
+        <InfoModal
+          title='Insufficient stock'
+          message={infoMessage}
+          onClose={() => setInfoMessage(null)}
         />
       )}
     </div>
